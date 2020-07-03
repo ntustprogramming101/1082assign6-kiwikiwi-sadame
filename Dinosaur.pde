@@ -2,13 +2,10 @@ class Dinosaur extends Enemy{
 	// Requirement #4: Complete Dinosaur Class
 
 	final float TRIGGERED_SPEED_MULTIPLIER = 5;
-  float speed = 2f;
-  int col, row;
+  float speed = 1f;
   
   Dinosaur(float x, float y){
     super(x, y);
-    col = (int) x / SOIL_SIZE;
-    row = (int) y / SOIL_SIZE;
   }
   
   void display(){
@@ -32,17 +29,22 @@ class Dinosaur extends Enemy{
     }
     
     float currentSpeed = speed;
-    if(player.row == this.row){
-      int direction = (speed > 0) ? RIGHT : LEFT;
-      
-      if(direction == RIGHT && player.x > x){
-        currentSpeed *= TRIGGERED_SPEED_MULTIPLIER;
-        x += currentSpeed;
-      }else if(direction == LEFT && player.x < x){
-        currentSpeed *= TRIGGERED_SPEED_MULTIPLIER;
-        x += currentSpeed;
+      if(player.y == y){
+        if(speed > 0 && player.x > x){
+          currentSpeed *= TRIGGERED_SPEED_MULTIPLIER;
+        }else if(speed < 0 && player.x < x){
+          currentSpeed *= TRIGGERED_SPEED_MULTIPLIER;
+        }
       }
-    }
-    x += speed; 
+    x += currentSpeed;
   }
+  
+  
+	// HINT: Player Detection in update()
+	/*
+	float currentSpeed = speed
+	If player is on the same row with me AND (it's on my right side when I'm going right OR on my left side when I'm going left){
+		currentSpeed *= TRIGGERED_SPEED_MULTIPLIER
+	}
+	*/
 }
