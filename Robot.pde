@@ -11,9 +11,7 @@ class Robot extends Enemy{
   Laser laser;
   
   void display(){
-    if(laser.isAlive){
-      laser.display();
-    }
+
     int direction = (speed > 0) ? RIGHT : LEFT;    
     pushMatrix();
     translate(x, y);
@@ -25,51 +23,41 @@ class Robot extends Enemy{
       image(robot, -w, 0, w, h);
     }
     popMatrix();
-    
+    laser.display();
   }
   
   void update(){  
-    if(x > width - w || x < 0 ){      
-      speed *= -1;
-    }
+    float currentSpeed = speed;
     
-    laser = new Laser();
     if(checkX() && checkY()){
-      if(cooldown == 0){
-        if(speed > 0){
+      if(cooldown < LASER_COOLDOWN)  cooldown ++;
+      if(cooldown == LASER_COOLDOWN){
+        if(currentSpeed > 0){
           laser.fire(x+HAND_OFFSET_X_FORWARD, y+HAND_OFFSET_Y, player.x+player.w/2, player.y+player.h/2);
-          cooldown = LASER_COOLDOWN;
-        }else{
+        }else if(currentSpeed < 0){
           laser.fire(x+HAND_OFFSET_X_BACKWARD, y+HAND_OFFSET_Y, player.x+player.w/2, player.y+player.h/2);
-          cooldown = LASER_COOLDOWN;
         }
-      }else{
-        cooldown --;
+        cooldown = 0;
       }
     }else{
-      x += speed;
+      x += currentSpeed;
+      if(x < 0 || x > width-w){
+        speed *= -1;
+      }
     }
-    
-    if(laser.isAlive){
-      laser.update();
-    }
+    laser.update();
   }
   
   void checkCollision(Player player){
-    if(laser.isAlive){
-      laser.checkCollision(player);
-    }
-    super.checkCollision(player);
+    laser.checkCollision(player);
   }
   
   boolean checkX(){
-    int direction = (speed > 0) ? RIGHT : LEFT;
     float playerCenter = player.x + player.w/2;
-    if((direction == RIGHT && playerCenter > x + HAND_OFFSET_X_FORWARD) ||
-        direction == LEFT && playerCenter < x + HAND_OFFSET_X_BACKWARD){
+    if((speed > 0 && playerCenter > x + HAND_OFFSET_X_FORWARD) ||
+        speed < 0 && playerCenter < x + HAND_OFFSET_X_BACKWARD){
       return true;
     }
-    
     return false;
   }
   
@@ -80,25 +68,9 @@ class Robot extends Enemy{
     }
     return false;
   }
-	// HINT: Player Detection in update()
-	/*
   
-	boolean checkX = ( Is facing forward AND player's center point is in front of my hand point )
-					OR ( Is facing backward AND player's center point (x + w/2) is in front of my hand point )
-
-	boolean checkY = player is less than (or equal to) 2 rows higher or lower than me
-
-	if(checkX AND checkY){
-		Is laser's cooldown ready?
-			True  > Fire laser from my hand!
-			False > Don't do anything
-	}else{
-		Keep moving!
-	}
-
-	*/
-
   Robot(float x, float y){
     super(x, y);
+    laser = new Laser();
   }
 }
